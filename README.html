@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head> 
+    <title>ZIDS Manual</title>
+	<style type="text/css"> 
+		body {font-family:"Kalinga",Georgia,Arial,Tahoma; background: #000; color: #fff;font-size: 14px; counter-reset: lvl1;} 
+		h1:before {content: counter(lvl1) " "; counter-increment: lvl1;}
+		h1 {font-size: 24px; counter-reset: lvl2;}		
+		h2:before {content: counter(lvl1) "." counter(lvl2) " "; counter-increment: lvl2;}
+		h3 {color:#FF6666; font-variant:small-caps;}
+		h3+div {margin-left: 20px;}
+		h4 {text-decoration:underline;}
+		a[href] {color:#bbb;font-weight:bold;}
+		pre{background:#777777; border:1px solid #000000;padding:5px;}
+		.attention{padding: 10px; background: #168575; border: 1px solid #fff;}
+		#content {width: 640px; margin: auto; background: #666; padding:20px; text-align:justify;}
+		#title {font-size: 30px;text-align: center;}
+		#author {font-size: 12px;margin-top:15px;}		
+</style> 
+</head>
+<body>
+<div id="content">
+<div id="title">ZIDS <br> Zend Framework Intruder Detection System
+	<div id="author">
+   Requirements: Zend Framework (tested with version 1.10)<br>
+	    		 PHP-IDS (tested with version 0.6.4)<br><br><br>
+						  Copyright (c) 2010 - 2011<br>
+						 by Christian KONCILIA<br>
+						 <a href="mailto:admin@web-punk.com">admin@web-punk.com</a><br><br>
+						<a href="http://www.web-punk.com">http://www.web-punk.com</a>
+	</div>
+</div>
+<h1>LICENSE</h1>
+<p>See \library\zids\Plugin\Ids.php for license information.</p>
+<h1>VERSION</h1>
+<p>This is ZIDS Version 1.0.1</p>
+<h1>WHAT IS ZIDS</h1>
+<p>"<i>Never ever trust user input!</i>" - ZIDS helps you follow this golden rule of programming web applications. 
+ZIDS uses PHP-IDS to analyze user inputs. The impact of a request is 
+an integer value returned by PHP-IDS that indicates the severity 
+of the attack. The higher the impact, the more likely the request was an attack!</p>
+<p>ZIDS enables you to easily integrate PHP-IDS in your Zend Framework project. It 
+allows you to define any number of levels of attack: e.g., 'unlikely', 'likely', 
+'very likely' and 'attack'.</p>
+<p>
+For each level you may define:</p>
+<ul>
+<li>an interval that defines how the impact will be categorized, e.g. impact 
+    0-10 will be considered as an 'unlikely' attack whereas an impact between 11 and 30 will be considered as a 'likely' attack.</li>
+<li>how to deal with an attack, e.g. ignore the attack, log the attack, send 
+    an email to the admin, redirect the user to a special page (i.e. to a special controller/action), etc.</li>
+</ul>	
+<p>
+Furthermore, ZIDS enables you to aggregate all impacts in your session. This is useful 
+as usually an attacker will start to analyze your website with a series of "small" 
+attacks, i.e. attacks with an impact below 15. If you enable aggregation, four attacks 
+with an impact of 5 will aggregate to an attack with an impact of 20 (5 + 5 + 5 + 5).</p>
+<p class="attention">ZIDS is open source! In case you are using ZIDS, I would appreciate if you could send a short email to <a href="mailto:admin@web-punk.com?subject=Hey I am using ZIDS">admin@web-punk.com</a>.<br>
+Follow me on <a href="http://twitter.com/web_punk">twitter</a> to keep up to date.</p>
+<h1>INSTALLING ZIDS</h1>
+<ol>
+<li>Download latest version of ZIDS from <a href="http://code.google.com/p/zids/downloads/list">http://code.google.com/p/zids/downloads/list</a></li>
+<li>Download PHP-IDS (<a href="http://phpids.org/">http://phpids.org/</a>). ZIDS has been tested with PHP-IDS 0.6.4</li>
+<li>Extract and copy the PHP-IDS code to your project's \library folder, e.g. \library\phpids-0.6.4</li>
+<li>Extract and copy the ZIDS code to your project's \library folder, e.g. \library\zids\Plugin\Ids.php</li>
+<li>Adapt your application.ini file (see \zids\application\config\application.ini in the ZIDS package for a sample 
+      configuration).<br/>ZIDS also supports <strong>application.xml</strong> files. The only difference to using an INI file is that 
+	  you have to use the <code>&lt;all&gt;</code> tag instead of an asterisk. 
+	  Please, have a look at <a href="#options">Specific and Global Options</a> for more information.</li>
+<li>Adapt your bootstrap.php file (see next chapter)</li>
+</ol>
+<h1>REGISTER THE ZIDS PLUGIN</h1>
+Copy and paste the following source into your bootstrap.php file:
+<pre>
+protected function _initZIDS() {
+    // Setup autoloader
+    $autoloader = Zend_Loader_Autoloader::getInstance();
+    $autoloader->registerNamespace('ZIDS');
+        
+    // Make sure that the front controller is initialized
+    $this->bootstrap('FrontController');
+
+    // Retrieve the front controller
+    $front = $this->getResource('FrontController');
+
+    // Register ZIDS if options have been specified
+    if ($this->hasOption('zids'))
+    {
+        // Create ZIDS instance
+        $zids = new ZIDS_Plugin_Ids($this->getOption('zids'));
+
+        // create a logger (ADAPT THIS TO YOUR NEEDS!)
+        $logger = new Zend_Log ();
+        $filter = new Zend_Log_Filter_Priority(Zend_Log::ERR);
+        $writer = new Zend_Log_Writer_Stream ("../data/logs/log.txt");
+        $logger->addWriter ( $writer );
+
+        // register all plugins that you need
+        $zids->registerPlugin(new ZIDS_Plugin_ActionPlugin_Ignore());
+        $zids->registerPlugin(new ZIDS_Plugin_ActionPlugin_Email());
+        $zids->registerPlugin(new ZIDS_Plugin_ActionPlugin_Log($logger));
+        $zids->registerPlugin(new ZIDS_Plugin_ActionPlugin_Redirect());
+
+        // Register ZIDS with the front controller
+        $front->registerPlugin($zids);
+    }
+}
+</pre>	
+This code will register all standard ZIDS plugins. In case you don't need all ZIDS plugin, simply 
+remove the corresponding <code>registerPlugin</code> lines.
+
+<h1>IMPACT LEVELS</h1>
+<p>In order to deal with the impact of a request as returned by PHP_IDS you have to define so called impact levels. 
+Basically, an impact level corresponds to an interval. You define these intervals using the <code>upto</code> option.</p> 
+
+<p>For each impact level you have to define an action or a sequence of actions using the <code>action</code> option.</p>
+
+<p>ZIDS will iterate through all defined impact levels (in the order as they are defined in application.ini). The first level 
+where the condition <code>impact <= level.upto</code> returns true is the level which will fire. 'fireing' in this context 
+means that all actions defined for this level will fire.</p>
+
+Have a look at the following example:
+<pre>
+zids.level.unlikely.upto = 5
+zids.level.unlikely.action.0 = ignore
+
+zids.level.likely.upto = 25
+zids.level.likely.action.0 = log
+
+zids.level.attack.action.0 = log
+zids.level.attack.action.1 = email
+</pre>
+
+<p>In this example, we define a set of three impact levels: 'unlikely', 'likely' and 'attack'. The unlikely impact level will fire
+if an impact between 0 and 5 occurs. The likely impact level will fire, if an impact between 6 and 25 occurs. For all impacts greater
+than 25, the attack impact level will fire.</p>
+
+<p>Furthermore we defined, that we are going to ignore all possible attacks categorized as 'unlikely'. For the 'likely' impact level we
+are going to write a log entry. If the 'attack' impact level fires we are going to write a log entry and send an email.</p>
+
+<h1>ZIDS PLUGINS</h1>
+<h2><a name="options">Specific and Global Options</a></h2>
+Options for all ZIDS plugins may be set in two different ways: specific or general. In the following example, we define the loglevel option for the log plugin:
+<pre>
+zids.level.unlikely.option.log.loglevel = 6
+zids.level.*.option.log.loglevel = 3
+</pre>
+The first definition is a specific definition as it specifically sets the loglevel for the impact level 'unlikely' to 6. The second definition is a general definition as 
+it uses the asterisk (*). 
+
+<p class="attention">If you don't use an 'ini'-file for your application configuration but prefer xml, please use the <code>&lt;all&gt;</code> tag instead of the asterisk (*). Hence, your application.xml could look like this:
+<pre>
+&lt;zids&gt;
+    ...
+	&lt;level&gt;
+		&lt;all&gt;
+			&lt;option&gt;
+				&lt;log&gt;
+					&lt;loglevel&gt;3&lt;/loglevel&gt;
+				&lt;/log&gt;
+			&lt;/option&gt;
+		&lt;/all&gt;
+	&lt;/level&gt;
+    ...	
+&lt;/zids&gt;
+</pre>
+</p>
+
+<p>A general definition sets an option for all impact levels. A specific definition sets an option only for the specified level.</p>
+<a class="attention">Specific options always override general options!</a>
+<p>
+This is especially useful, if you have multiple options and only want to change some of them for specific impact levels. The following example defines how to send 
+emails in case of an attack. Furthermore, it defines that all emails will be sent to webadmin@yourhost.com except for the impact level 'verylikely'. In this case 
+we directly want to send the email to the ceo@yourhost.com!</p>
+<pre>
+zids.level.*.option.email.smtp.auth = "login"
+zids.level.*.option.email.smtp.port = "465"
+zids.level.*.option.email.smtp.ssl = "SSL"
+zids.level.*.option.email.smtp.username = "username"
+zids.level.*.option.email.smtp.password = "password"
+zids.level.*.option.email.smtp.host = "mail.yourhost.com"
+zids.level.*.option.email.from = "zids@yourhost.com"
+zids.level.*.option.email.to = "webadmin@yourhost.com"
+zids.level.verylikely.option.email.to = "ceo@yourhost.com"
+</pre>
+
+<h2>Standard Plugins</h2>
+ZIDS comes with the following standard plugins.
+<h3>Ignore</h3>
+<div>
+Nomen est omen: this plugin basically does nothing - it simply ignores the attack.
+
+<p class="attention"><strong>ATTENTION!</strong> Do not mistake the Ignore plugin for the Ignore option (see "<a href="#basicconfig">ZIDS configuration</a>".
+The ignore plugin will fire, <strong>after</strong> a possible attack has been detected, and - if you set the <code>aggregate_in_session</code> to <code>true</code> - <strong>after</strong> the impact 
+has been aggregated in the session. In contrast, ignoring a request using the ignore option means that PHP_IDS doesn't even start! Please, have a look at the "<a href="#basicconfig">ZIDS configuration</a>" chapter for more details.
+</p>
+</div>
+<h3>Log</h3>
+<div>
+This plugin logs the attack into the Zend_Log defined. You may set the log that ZIDS should use as parameter of the constructor or with the setLog() Method.
+<h4>application.ini options (example & description)</h4>
+<pre>
+zids.level.LEVELNAME.option.log.loglevel = 3
+zids.level.LEVELNAME.option.log.items = ip, impact, tags, variables
+</pre>
+<p><code>loglevel</code> defines the Zend_Log level to use, e.g. ALERT, EMERG, etc. The example given above logs all attacks that fall into the LEVELNAME impact level at Zend_Log level 3 (= Zend_Log::ERR)</p>
+<p><code>items</code> is a list of all items that should be written to the log. Currently, this plugin supports four items:</p>
+<ul>
+<li>ip        = the IP of the attacker</li>
+<li>impact    = the impact of the attack</li>
+<li>tags      = the list of affected tags, e.g. sqli (for SQL Injections), xss, lfi, ...</li>
+<li>variables = the variable in the request that contained the potential attack</li>
+</ul>
+As all ZIDS plugin options, these options may be defined for a specific impact level or general for all impact levels (see <a href="#options">Specific and Global Options</a>)
+</div>
+<h3>Email</h3>
+<div>
+This plugin uses Zend_Mail to send an email via SMTP if a possible attack has been detected. You may specify the Zend_Mail instance to use as option in the constructor of the plugin, with the setEmail() Method, or in the application.ini!
+<h4>application.ini options (example & description)</h4>
+<pre>
+zids.level.LEVELNAME.option.email.smtp.auth = "login"
+zids.level.LEVELNAME.option.email.smtp.port = "465"
+zids.level.LEVELNAME.option.email.smtp.ssl = "SSL"
+zids.level.LEVELNAME.option.email.smtp.username = "username"
+zids.level.LEVELNAME.option.email.smtp.password = "password"
+zids.level.LEVELNAME.option.email.smtp.host = "mail.yourhost.com"
+zids.level.LEVELNAME.option.email.from = "zids@yourhost.com"
+zids.level.LEVELNAME.option.email.to = "webadmin@yourhost.com"
+zids.level.LEVELNAME.option.email.subject = "ZIDS: attack detected"
+zids.level.LEVELNAME.option.email.items = ip, impact, tags, variables
+</pre>
+<p><code>auth</code>, <code>port</code>, <code>ssl</code>, <code>username</code>, <code>password</code>, <code>host</code>, <code>from</code>, <code>to</code> and <code>subject</code> are options that will be simply passed to Zend_Mail. Have a look at the <a href="http://framework.zend.com/manual/en/zend.mail.html">Zend_Mail manual</a> in case of any questions regarding these parameters.</p>
+<p><code>items</code> is a list of all items that should be part of the email. Currently, this plugin supports four items:</p>
+<ul>
+<li>ip        = the IP of the attacker</li>
+<li>impact    = the impact of the attack</li>
+<li>tags      = the list of affected tags, e.g. sqli (for SQL Injections), xss, lfi, ...</li>
+<li>variables = the variable in the request that contained the potential attack</li>
+</ul>
+As all ZIDS plugin options, these options may be defined for a specific impact level or general for all impact levels (see <a href="#options">Specific and Global Options</a>)
+</div>
+<h3>Redirect</h3>
+<div>
+This plugin redirects the user to a special website, e.g. a page that will inform the user that his/her request could not be processed due to security reasons. You may 
+specify the target for the redirect as option (array) in the constructor of the plugin, with the setTarget() Method, or in the application.ini!
+<h4>application.ini options (example & description)</h4>
+<pre>
+zids.level.LEVELNAME.option.redirect.module = default
+zids.level.LEVELNAME.option.redirect.controller = index
+zids.level.LEVELNAME.option.redirect.action = attack
+</pre>
+<p><code>module</code>, <code>controller</code> and <code>action</code> are used to define the target for the redirect plugin. Hence, in this example the user would be redirected to \index\attack in the default module.</p>
+As all ZIDS plugin options, these options may be defined for a specific impact level or general for all impact levels (see <a href="#options">Specific and Global Options</a>)
+</div>
+<h2>Writing your own Plugin</h2>
+You may define your own plugins by extending ZIDS_Plugin_ActionPlugin_Action. All you have to do is to implement the following two methods (see ZIDS_Plugin_ActionPlugin_Interface):
+<pre>
+/**
+ * If an impact triggers this action, this method will be called. 
+ *
+ * @param IDS_Report $ids_result The result of the PHP IDS scan
+ * @param int $impact The impact. If zids.aggregate_in_session = true, 
+ *            $impact consists of the aggregated impact 
+ *            otherwise $impact is the non aggregated impact
+ * @param string $levelname Name of the impact level that fires the action
+ * @return void
+ */
+public function fires(IDS_Report $ids_result, $impact, $levelname);
+
+/**
+ * Each plugin has to return a unique identifier / name
+ *
+ * @return string
+ */
+public function getIdentifier();
+</pre>
+
+<h1><a name="basicconfig">ZIDS CONFIGURATION (application.ini)</a></h1>
+Beside the options defined for the ZIDS plugins, ZIDS uses the following options in the application.ini:
+<h4>application.ini options (example &amp; description)</h4>
+<pre>
+zids.aggregate_in_session = true
+zids.ignore.requests.module.0 = default
+zids.ignore.requests.controller.0 = index
+zids.ignore.requests.action.0 = sidebar
+</pre>
+<p><code>aggregate_in_session:</code> if set to true, ZIDS will aggregate the impact of each attack in the session.
+For instance, if the attacker submits a request with an impact of 5, and later on submits a 
+request with an impact of 10, the second request will be treated as a request with an impact
+of 15 (=5 + 10)
+</p>
+<p><code>ignore.request.module</code>, <code>ignore.request.controller</code>, <code>ignore.request.action</code>. Use these options to define which requests should be completely ignored by
+ZIDS!</p>
+<p class="attention">Please note that you don't have to specify all three options: If all three options are set, ZIDS will ignore all requests where all three parameters match.
+If only the module and controller have been specified, both parameters have to match (action is being ignored). If only module has 
+been specified, the module has to match (controller & action are being ignored).
+</p>
+
+<h2><a name="phpidsconfig">PHPIDS CONFIGURATION via application.ini</a></h2>
+<p>PHPIDS uses it's own configuration file (usually, you'll find this config file in <code>/lib/IDS/Config/Config.ini.php</code> in your PHPIDS directory).</p>
+<p>For your convenience, you may define all PHPIDS parameters in your <code>application.ini</code> file. Therefore, you don't have to manage two configuration files.</p>
+
+<p>ZIDS simply passes all <code>zids.phpids.*</code> parameters defined in your <code>application.ini</code> to PHPIDS.</p>
+<p>Basically, you'll only need the following two parameters:</p>  
+<pre>
+zids.phpids.config = APPLICATION_PATH "/library/phpids-0.6.4/lib/IDS/Config/Config.ini.php"
+zids.phpids.General.base_path = APPLICATION_PATH "/library/phpids-0.6.4/lib/IDS/"
+</pre>
+<p><code>zids.phpids.config</code> defines where the PHPIDS config file can be found.</p>
+<p><code>zids.phpids.General.base_path</code> defines the working directory for PHPIDS</p>
+<p>You'll have to define these two options in order to work with ZIDS. However, PHPIDS allows you to define much more parameters. For instance, you may define which fields should never be parsed by PHPIDS or which fields contain JSON data and should be treated as such.</p>
+<p>As ZIDS simply passes all <code>zids.phpids.*</code> parameters defined in your <code>application.ini</code> to PHPIDS, you may for instance use...</p>
+<pre>
+zids.phpids.Caching.path = APPLICATION_PATH "/data/cache/ids/default_filter.cache"
+</pre>
+...to define the caching path used by PHPIDS
+<p>Please, have a look at the PHPIDS manual for further information.</p>
+
+<h1>QUESTIONS?</h1>
+Got questions? Please, send an email to <a href="mailto:admin@web-punk.com?subject=Question regarding ZIDS">admin@web-punk.com</a>
+
+<h1>CHANGE LOG</h1>
+<ul>
+<li>Version 1.0.1</li>
+<ul>
+<li><strong>Feature</strong>: No need to maintain PHPIDS config file anymore. You may now use the ZIDS section in your application.ini to configure all parameters for PHPIDS. Special thanks to Michael Scholl!</li>
+<li><strong>Feature</strong>: Update example application.ini with more details and descriptions.</li>
+<li><strong>Bug</strong>: The Email plugin now escapes the content of an attack before sending the email.</li>
+<li><strong>Bug</strong>: Some other minor bugs (too lazy to list them here ;-))</li>
+</ul>
+<li>Version 0.6.1</li>
+<ul>
+<li><strong>Feature</strong>: ZIDS now also supports XML configuration files, i.e. use application.xml instead of application.ini (thanks to panosru for her/his contribution)</li>
+</ul>
+<li>Version 0.6.0</li>
+<ul>
+<li><strong>Feature</strong>: define any number of levels you want</li>
+<li><strong>Design</strong>: actions (log, email, redirect, etc.) are now plugins</li>
+<li><strong>Design</strong>: enables you to define new action plugins</li>
+<li><strong>Feature</strong>: all parameters for all action plugins may be specified for each level or globally</li>
+<li><strong>Log Plugin</strong>: new option 'loglevel' which defines the level (e.g. 'ALERT', 'EMERG', ...) used 
+              when logging a message</li>
+<li><strong>Feature</strong>: define which module/controller/action to ignore. If you specify only a module, all 
+           requests to this module will be ignored. If you specify a module + controller, all 
+           actions in this controller will be ignored</li>
+</ul>		   
+</ul>		   
+</div>		   
+</body>
+</html>

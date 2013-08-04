@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>File Source for Interface.php</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+						<h1>Source for file Interface.php</h1>
+<p>Documentation is available at <a href="../ZIDS/_ActionPlugin---Interface.php.html">Interface.php</a></p>
+<div class="src-code">
+<div class="src-code"><ol><li><div class="src-line"><a name="a1"></a><span class="src-php">&lt;?php</span></div></li>
+<li><div class="src-line"><a name="a2"></a><span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a3"></a><span class="src-doc">&nbsp;*&nbsp;ZIDS&nbsp;Action&nbsp;Interface.</span></div></li>
+<li><div class="src-line"><a name="a4"></a><span class="src-doc">&nbsp;*&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a5"></a><span class="src-doc">&nbsp;*&nbsp;Implement&nbsp;this&nbsp;interface&nbsp;for&nbsp;your&nbsp;own&nbsp;actions.</span></div></li>
+<li><div class="src-line"><a name="a6"></a><span class="src-doc">&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a7"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@package</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;ZIDS</span></div></li>
+<li><div class="src-line"><a name="a8"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@author</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Christian&nbsp;Koncilia</span></div></li>
+<li><div class="src-line"><a name="a9"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@copyright</span><span class="src-doc">&nbsp;&nbsp;Copyright&nbsp;(c)&nbsp;2010&nbsp;Christian&nbsp;Koncilia.&nbsp;(http://www.web-punk.com)</span></div></li>
+<li><div class="src-line"><a name="a10"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@license</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;New&nbsp;BSD&nbsp;License&nbsp;(see&nbsp;above)</span></div></li>
+<li><div class="src-line"><a name="a11"></a><span class="src-doc">&nbsp;*&nbsp;</span><span class="src-doc-coretag">@version</span><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;V.0.6</span></div></li>
+<li><div class="src-line"><a name="a12"></a><span class="src-doc">&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a13"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a14"></a><span class="src-key">interface&nbsp;</span><a href="../ZIDS/ZIDS_Plugin_ActionPlugin_Interface.html">ZIDS_Plugin_ActionPlugin_Interface</a></div></li>
+<li><div class="src-line"><a name="a15"></a><span class="src-sym">{</span></div></li>
+<li><div class="src-line"><a name="a16"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a17"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;If&nbsp;an&nbsp;impact&nbsp;triggers&nbsp;this&nbsp;action,&nbsp;this&nbsp;method&nbsp;will&nbsp;be&nbsp;called.</span></div></li>
+<li><div class="src-line"><a name="a18"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a19"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@param&nbsp;</span><span class="src-doc-type">IDS_Report&nbsp;</span><span class="src-doc-var">$ids_result&nbsp;</span><span class="src-doc">The&nbsp;result&nbsp;of&nbsp;the&nbsp;PHP&nbsp;IDS&nbsp;scan</span></div></li>
+<li><div class="src-line"><a name="a20"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@param&nbsp;</span><span class="src-doc-type">int&nbsp;</span><span class="src-doc-var">$impact&nbsp;</span><span class="src-doc">The&nbsp;impact.&nbsp;If&nbsp;zids.aggregate_in_session&nbsp;=&nbsp;true,&nbsp;$impact&nbsp;consists&nbsp;of&nbsp;the&nbsp;aggregated&nbsp;impact&nbsp;otherwise&nbsp;$impact&nbsp;is&nbsp;the&nbsp;non&nbsp;aggregated&nbsp;impact</span></div></li>
+<li><div class="src-line"><a name="a21"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@param&nbsp;</span><span class="src-doc-type">string&nbsp;</span><span class="src-doc-var">$levelname&nbsp;</span><span class="src-doc">Name&nbsp;of&nbsp;the&nbsp;level&nbsp;that&nbsp;fires&nbsp;the&nbsp;action</span></div></li>
+<li><div class="src-line"><a name="a22"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@return&nbsp;</span><span class="src-doc-type">void&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a23"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a24"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">public&nbsp;</span><span class="src-key">function&nbsp;</span><a href="../ZIDS/ZIDS_Plugin_ActionPlugin_Interface.html#methodfires">fires</a><span class="src-sym">(</span><span class="src-id">IDS_Report&nbsp;</span><span class="src-var">$ids_result</span><span class="src-sym">,&nbsp;</span><span class="src-var">$impact</span><span class="src-sym">,&nbsp;</span><span class="src-var">$levelname</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a25"></a>&nbsp;</div></li>
+<li><div class="src-line"><a name="a26"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-doc">/**</span></div></li>
+<li><div class="src-line"><a name="a27"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;Each&nbsp;plugin&nbsp;has&nbsp;to&nbsp;return&nbsp;a&nbsp;unique&nbsp;identifier&nbsp;/&nbsp;name</span></div></li>
+<li><div class="src-line"><a name="a28"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</span></div></li>
+<li><div class="src-line"><a name="a29"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span><span class="src-doc-coretag">@return&nbsp;</span><span class="src-doc-type">string&nbsp;</span></div></li>
+<li><div class="src-line"><a name="a30"></a><span class="src-doc">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</span></div></li>
+<li><div class="src-line"><a name="a31"></a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="src-key">public&nbsp;</span><span class="src-key">function&nbsp;</span><a href="../ZIDS/ZIDS_Plugin_ActionPlugin_Interface.html#methodgetIdentifier">getIdentifier</a><span class="src-sym">(</span><span class="src-sym">)</span><span class="src-sym">;</span></div></li>
+<li><div class="src-line"><a name="a32"></a><span class="src-sym">}</span></div></li>
+</ol></div>
+</div>
+	<p class="notes" id="credit">
+		Documentation generated on Mon, 13 Sep 2010 13:31:25 +0200 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.1</a>
+	</p>
+	</body>
+</html>
